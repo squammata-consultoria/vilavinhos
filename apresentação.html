@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="pt-br"> <!-- A classe 'mode-portrait' será adicionada aqui via JS -->
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apresentação - Estratégia Vila Vinhos</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Importa a fonte Montserrat (Regular 400, Bold 700, Extra-Bold 800) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Aplica a fonte Montserrat como padrão */
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #000; /* Fundo preto para letterboxing */
+        }
+        
+        /* Classes de fonte personalizadas */
+        .font-title {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800; /* Extra-Bold para títulos */
+        }
+        .font-body {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 400; /* Regular para corpo */
+        }
+
+        /* --- MODO DESKTOP (16:9) --- */
+        #presentation-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            /* Proporção 16:9 (Paisagem) */
+            width: 100vw;
+            height: 56.25vw; /* 100 * (9/16) */
+            max-height: 100vh;
+            max-width: 177.78vh; /* 100 * (16/9) */
+            transform: translate(-50%, -50%);
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            background-color: #ffffff;
+        }
+
+        /* --- MODO RETRATO (9:16) --- */
+        .mode-portrait #presentation-container {
+            /* Proporção 9:16 (Retrato) */
+            width: 56.25vh; /* 100 * (9/16) */
+            height: 100vh;
+            max-width: 100vw;
+            max-height: 177.78vw; /* 100 * (16/9) */
+        }
+
+        /* Estilo base do Slide */
+        .slide {
+            opacity: 0;
+            position: absolute;
+            inset: 0;
+            transition: opacity 0.6s ease-in-out, transform 0.6s ease-in-out;
+            transform: scale(0.97);
+            pointer-events: none;
+            z-index: 10;
+        }
+        .slide.active {
+            opacity: 1;
+            transform: scale(1);
+            pointer-events: auto;
+            z-index: 20;
+        }
+
+        .nav-btn {
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .color-swatch {
+            width: 100%;
+            height: 80px;
+            border-radius: 0.5rem;
+            border: 1px solid rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        /* --- PALETA DE CORES COMO CLASSES --- */
+        .bg-primary    { background-color: #8e151b; }
+        .text-primary  { color: #8e151b; }
+        .border-primary{ border-color: #8e151b; }
+        .bg-clara-1    { background-color: #FADCD9; }
+        .bg-clara-2    { background-color: #F79D84; }
+        .bg-clara-3    { background-color: #F3B562; }
+        .text-clara-2  { color: #F79D84; }
+        .text-clara-3  { color: #F3B562; }
+        .border-clara-2{ border-color: #F79D84; }
+        .bg-rafael-1   { background-color: #0B3C49; }
+        .bg-rafael-2   { background-color: #3C3C3B; }
+        .bg-rafael-3   { background-color: #A96F44; }
+        .text-rafael-2 { color: #3C3C3B; }
+        .text-rafael-3 { color: #A96F44; }
+
+        /* --- ESTILOS RESPONSIVOS (Modo Retrato) --- */
+        .mode-portrait .slide {
+            /* Reduz o padding no celular */
+            padding: 2.5rem 1.5rem !important;
+        }
+        
+        /* Força todas as colunas md: a ficarem empilhadas */
+        .mode-portrait [class*="md:grid-cols-2"] {
+            grid-template-columns: 1fr !important;
+        }
+        .mode-portrait .grid {
+            gap: 1.5rem !important; /* Reduz o 'gap' */
+        }
+        
+        /* Reduz a altura das imagens */
+        .mode-portrait .h-60 { height: 10rem !important; }
+        .mode-portrait .h-48 { height: 9rem !important; }
+        .mode-portrait .h-40 { height: 8rem !important; }
+        .mode-portrait .w-48 { width: 8rem !important; } /* Logo */
+        .mode-portrait .h-48 { height: 8rem !important; } /* Logo */
+
+        /* Overrides de Tipografia para modo retrato */
+        .mode-portrait .font-title.text-6xl,
+        .mode-portrait .font-title.text-5xl {
+            font-size: 2.25rem !important; /* 36px */
+            line-height: 2.5rem !important;
+            margin-bottom: 1rem !important;
+        }
+        .mode-portrait .font-title.text-4xl {
+            font-size: 1.875rem !important; /* 30px */
+            line-height: 2.25rem !important;
+            margin-bottom: 1rem !important;
+        }
+        .mode-portrait .font-title.text-3xl {
+            font-size: 1.5rem !important; /* 24px */
+            line-height: 2rem !important;
+        }
+        .mode-portrait .font-title.text-2xl {
+            font-size: 1.25rem !important; /* 20px */
+            line-height: 1.75rem !important;
+        }
+        
+        .mode-portrait .text-2xl {
+            font-size: 1.125rem !important; /* 18px */
+            line-height: 1.75rem !important;
+        }
+        .mode-portrait .text-xl {
+            font-size: 1rem !important; /* 16px */
+            line-height: 1.5rem !important;
+        }
+        .mode-portrait .text-lg {
+            font-size: 0.875rem !important; /* 14px */
+            line-height: 1.25rem !important;
+        }
+        .mode-portrait .list-disc {
+            padding-left: 1.25rem !important;
+        }
+
+        /* Ajustes finos em layout */
+        .mode-portrait .space-y-6 { space-y: 1rem !important; }
+        .mode-portrait .p-6 { padding: 1rem !important; }
+        .mode-portrait .p-8 { padding: 1.25rem !important; }
+        .mode-portrait .p-10 { padding: 1.5rem !important; }
+        .mode-portrait #slide-counter { display: none; } /* Esconde o contador */
+
+    </style>
+</head>
+<body class="font-body">
+
+    <!-- Contêiner 16:9 ou 9:16 -->
+    <div id="presentation-container">
+        
+        <!-- Slide 1: Capa -->
+        <div class="slide active flex flex-col justify-center items-center p-16 md:p-20 text-center">
+            <!-- COMENTÁRIO: Logo da Vila Vinhos. Substituir se houver versão de maior qualidade. -->
+            <img src="https://cdn.awsli.com.br/400x300/2702/2702254/logo/logo-vila-vinhos_1080x1080-2-z3xzmv4rvq.png" alt="Logo Vila Vinhos" class="w-48 h-48 mb-8">
+            <h1 class="font-title text-5xl md:text-6xl text-primary mb-6">Análise Estratégica</h1>
+            <p class="font-title text-2xl md:text-3xl text-gray-700">O Novo Consumidor de Vinho</p>
+            <p class="text-xl text-gray-600 mt-4">Da venda de produtos à construção de conexões.</p>
+        </div>
+
+        <!-- Slide 2: O Desafio e a Estratégia de Perfis -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20">
+            <h2 class="font-title text-4xl text-primary mb-8">Nosso Desafio</h2>
+            <!-- CONTEÚDO HUMANIZADO -->
+            <p class="text-2xl text-gray-700 leading-relaxed mb-6">Para crescer de forma sustentável, precisamos mudar: de apenas "vender produtos" para <span class="font-bold">"construir conexões"</span>.</p>
+            <div class="bg-gray-50 border-l-4 border-primary p-6 rounded-r-lg">
+                <h3 class="font-title text-2xl text-gray-800">A Estratégia: Perfis Duplos</h3>
+                <p class="text-xl text-gray-600 mt-2">
+                    <span class="font-bold text-clara-2">A Aposta (a aposta):</span> Capturar uma nova demanda, um novo jeito de consumir.
+                    <br>
+                    <span class="font-bold text-rafael-3">A Base Segura (base segura):</span> Garantir a rentabilidade e um fluxo de receita previsível.
+                </p>
+            </div>
+        </div>
+
+        <!-- Slide 3: Perfil Primário: Clara (A Aposta) -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20">
+            <h2 class="font-title text-4xl mb-8"><span class="text-primary">Perfil 1:</span> Clara, a Socializadora (a aposta)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <h3 class="font-title text-2xl text-gray-800 mb-4">Quem é:</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <ul class="list-disc list-outside pl-5 text-xl text-gray-700 space-y-2">
+                        <li>23-35 anos, urbana, profissional da economia criativa.</li>
+                        <li>Para ela, o vinho é um <span class="font-bold">acessório social</span>.</li>
+                        <li>Hobbies visuais: Pilates, brunch, feiras de design.</li>
+                        <li><span class="font-bold">Compra por:</span> Estética do rótulo, ocasião ("combina com a vibe").</li>
+                        <li><span class="font-bold text-red-600">Principal Dor:</span> <span class="font-bold">Intimidação</span>, linguagem técnica, excesso de opções.</li>
+                    </ul>
+                    <p class="text-2xl italic text-gray-600 bg-clara-1 p-4 rounded-lg border-l-4 border-clara-2 mt-6 shadow-inner">
+                        "Não quero uma aula, só quero um vinho gostoso que combine com o meu piquenique."
+                    </p>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h3 class="font-title text-2xl text-gray-800 mb-4">Estética: "Socialização e Lifestyle"</h3>
+                    <p class="text-xl text-gray-600 mb-4"><span class="font-bold">Conceito:</span> *Golden Hour* Autêntica. Vibrante, solar.</p>
+                    
+                    <!-- CONTAINER DE IMAGEM AUMENTADO -->
+                    <!-- COMENTÁRIO: Imagem de referência para estética de Clara (piquenique) -->
+                    <img src="romantic-pi.jpeg.jpg"
+                         alt="Piquenique com vinho rosé"
+                         class="w-full h-60 object-cover object-center rounded-lg bg-gray-200"
+                         onerror="this.src='https://placehold.co/600x400/FADCD9/8e151b?text=Imagem+Indisponível'">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 4: Perfil Secundário: Rafael (A Base Segura) - Fundo Azul -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20 bg-rafael-1 text-white"> <!-- bg-rafael-1 agora é AZUL -->
+            <h2 class="font-title text-4xl mb-8"><span class="text-primary">Perfil 2:</span> Rafael, o Entusiasta (base segura)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <h3 class="font-title text-2xl text-gray-100 mb-4">Quem é:</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <ul class="list-disc list-outside pl-5 text-xl text-gray-200 space-y-2">
+                        <li>30-45+ anos, profissional estável.</li>
+                        <li>Vinho como <span class="font-bold">hobby e aprendizado</span>.</li>
+                        <li>Gosta de cozinhar, ler, pesquisar (formatos longos).</li>
+                        <li><span class="font-bold">Compra por:</span> <span class="font-bold">Confiança</span> na curadoria, pesquisa prévia.</li>
+                        <li><span class="font-bold text-green-400">Função Estratégica:</span> Ele é nossa <span class="font-bold">base de receita</span> e LTV.</li>
+                    </ul>
+                    <!-- Bloco de citação agora usa bg-rafael-2 (Grafite) -->
+                    <p class="text-2xl italic text-gray-300 bg-rafael-2 p-4 rounded-lg border-l-4 border-rafael-3 mt-6 shadow-inner">
+                        "Gosto de entender o que estou bebendo. Quero um lugar que me ajude a escolher melhor, sem ser esnobe."
+                    </p>
+                </div>
+                <!-- Bloco de estética usa um cinza padrão do Tailwind, que é similar ao bg-rafael-2 -->
+                <div class="bg-gray-800 text-white p-6 rounded-lg shadow-inner">
+                    <h3 class="font-title text-2xl mb-4">Estética: "Descoberta e Conforto"</h3>
+                    <p class="text-xl text-gray-300 mb-4"><span class="font-bold">Conceito:</span> Refúgio Urbano. Conforto, sofisticação.</p>
+                    
+                    <!-- CONTAINER DE IMAGEM AUMENTADO -->
+                    <!-- COMENTÁRIO: Imagem de referência para estética de Rafael (homem cozinhando) -->
+                    <img src="gettyimages-200436647-002-612x612.jpg"
+                         alt="Homem cozinhando com vinho"
+                         class="w-full h-60 object-cover object-center rounded-lg bg-gray-700"
+                         onerror="this.src='https://placehold.co/600x400/0B3C49/FFFFFF?text=Imagem+Indisponível'">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 5: A Jornada de Compra Bi-Segmentada -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20">
+            <h2 class="font-title text-4xl text-primary mb-10">A Jornada de Compra de Cada Um</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <!-- Coluna Clara -->
+                <div class="bg-clara-1 p-6 rounded-lg border-2 border-clara-2 shadow-lg">
+                    <h3 class="font-title text-3xl mb-4 text-clara-2">Jornada da CLARA (Visual)</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <div class="mb-4">
+                        <h4 class="font-title text-2xl text-gray-800">1. Descoberta (Inspiração)</h4>
+                        <p class="text-lg text-gray-700">Busca a "vibe" no Instagram, Pinterest, indicação de amigas.</p>
+                        <!-- CONTAINER DE IMAGEM AUMENTADO -->
+                        <!-- COMENTÁRIO: Imagem de referência (Descoberta - Clara) -->
+                        <img src="378598012_18385859722030153_268934779002378179_n.jpg" class="w-full h-40 object-cover object-center rounded-md mt-2 bg-clara-1" alt="Grupo de amigos brindando em piquenique">
+                    </div>
+                    <div>
+                        <h4 class="font-title text-2xl text-gray-800">2. Compra (Impulso)</h4>
+                        <p class="text-lg text-gray-700">Compra por impulso: rótulo bonito, "Kit Piquenique" pronto.</p>
+                        <!-- CONTAINER DE IMAGEM AUMENTADO -->
+                        <!-- COMENTÁRIO: Imagem de referência (Compra - Clara) -->
+                        <img src="La_Vieille_Ferme_Wines.jpeg" class="w-full h-40 object-cover object-center rounded-md mt-2 bg-clara-1" alt="Vinhos e kits com rótulos bonitos">
+                    </div>
+                </div>
+
+                <!-- Coluna Rafael (Fundo Azul) -->
+                <div class="bg-rafael-1 text-white p-6 rounded-lg border-2 border-rafael-3 shadow-lg"> <!-- bg-rafael-1 agora é AZUL -->
+                    <h3 class="font-title text-3xl mb-4 text-rafael-3">Jornada do RAFAEL (Racional)</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <div class="mb-4">
+                        <h4 class="font-title text-2xl">1. Descoberta (Pesquisa)</h4>
+                        <p class="text-lg text-gray-300">Pesquisa no Google: "melhor vinho para churrasco", blogs, reviews.</p>
+                        <!-- CONTAINER DE IMAGEM AUMENTADO -->
+                        <!-- COMENTÁRIO: Imagem de referência (Descoberta - Rafael) -->
+                        <img src="harmonizacao-de-vinho-com-churrasco-.-harmonizar-vinho-com-churrasco.png" class="w-full h-40 object-cover object-center rounded-md mt-2 bg-rafael-1" alt="Harmonização de vinho com churrasco">
+                    </div>
+                    <div>
+                        <h4 class="font-title text-2xl">2. Compra (Confiança)</h4>
+                        <p class="text-lg text-gray-300">Compra com confiança: valoriza a curadoria, kits, clube de assinatura.</p>
+                        <!-- CONTAINER DE IMAGEM AUMENTADO -->
+                        <!-- COMENTÁRIO: Imagem de referência (Compra - Rafael) -->
+                        <img src="homem-tomando-vinho-tinto-no-piquenique-jovem-bebendo-durante-festa-de-churrasco-com-seus-amigos-fundo-295689299.jpg" class="w-full h-40 object-cover object-center rounded-md mt-2 bg-rafael-1" alt="Homem servindo vinho em churrasco">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 6: O Posicionamento Estratégico (com Placeholders) -->
+        <div class="slide flex flex-col justify-center items-center p-16 md:p-20 text-center">
+            <h2 class="font-title text-4xl text-primary mb-6">Nossa Oportunidade: O Posicionamento</h2>
+            <p class="text-xl text-gray-600 mb-6"><span class="font-bold">Aprendizado com o Mercado:</span> Focar em *Lifestyle* e *Comunicação Descomplicada*.</p>
+            
+            <!-- CONTAINER DE IMAGEM AUMENTADO -->
+            <div class="flex gap-4 mb-8 w-full max-w-4xl">
+                <!-- COMENTÁRIO: Imagem de referência do benchmark (Maison Mirabeau) - Placeholder -->
+                <img src="https://placehold.co/400x200/FADCD9/333?text=Referência:+Maison+Mirabeau+(Lifestyle)" alt="Referência Maison Mirabeau" class="w-1/2 h-48 object-cover object-center rounded-lg shadow-md bg-gray-100">
+                
+                <!-- COMENTÁRIO: Imagem de referência do benchmark (Whiny Baby) - Placeholder -->
+                <img src="https://placehold.co/400x200/F3B562/333?text=Referência:+Whiny+Baby+(Descomplicado)" alt="Referência Whiny Baby" class="w-1/2 h-48 object-cover object-center rounded-lg shadow-md bg-gray-100">
+            </div>
+
+            <p class="text-xl text-gray-600 mb-6"><span class="font-bold">O "Espaço em Branco":</span> Nossa chance é diferenciar por <span class="font-bold">Curadoria e Contexto</span>.</p>
+            
+            <div class="bg-gray-50 border-2 border-primary shadow-xl rounded-lg p-10 w-full max-w-3xl">
+                <h3 class="font-title text-3xl text-gray-800">Nossa Posição</h3>
+                <!-- CONTEÚDO HUMANIZADO -->
+                <p class="text-2xl text-gray-700 mt-2">"Ser a curadoria acessível que transforma a escolha do vinho de intimidadora em inspiradora."</p>
+            </div>
+        </div>
+
+        <!-- Slide 7: A Voz e Tom da Marca (REFORMULADO) -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20">
+            <h2 class="font-title text-4xl text-primary mb-10">Diretrizes da Marca: Nossa Voz</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 items-start">
+                
+                <!-- Coluna da Esquerda: Nossa Voz (BLOCO CLARO) -->
+                <div class="bg-gray-50 p-6 rounded-lg shadow-lg border-l-4 border-primary">
+                    <h3 class="font-title text-3xl text-gray-800 mb-4">Nossa Voz é...</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <ul class="list-disc list-outside pl-5 text-xl text-gray-700 space-y-3">
+                        <li><span class="font-bold">Curadora:</span> "Provamos 10 vinhos para você só precisar de 1."</li>
+                        <li><span class="font-bold">Contextual:</span> "Este é perfeito para a sua noite de pizza."</li>
+                        <li><span class="font-bold">Acessível:</span> Linguagem simples, sem jargões.</li>
+                    </ul>
+                    <!-- CONTAINER DE IMAGEM AUMENTADO -->
+                    <!-- COMENTÁRIO: Imagem de referência (Nossa Voz) -->
+                    <img src="image-3.jpg" alt="Conversa acessível com vinho" class="w-full h-40 object-cover object-center rounded-md mt-4 shadow-inner bg-gray-200">
+                </div>
+
+                <!-- Coluna da Direita: Não Somos (BLOCO ESCURO PARA CONTRASTE) -->
+                <div class="bg-rafael-2 text-white p-6 rounded-lg shadow-lg border-l-4 border-red-500">
+                    <h3 class="font-title text-3xl text-gray-100 mb-4">Não Somos...</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <ul class="list-disc list-outside pl-5 text-xl text-gray-300 space-y-3">
+                        <li><span class="font-bold">Evitamos o "Viniquês":</span> "Notas complexas de pirazinas..."</li>
+                        <li><span class="font-bold">Evitamos o Varejo Agressivo:</span> "PROMOÇÃO! SÓ HOJE!"</li>
+                        <li><span class="font-bold">Evitamos Intimidar:</span> Foco no prazer, não na técnica.</li>
+                    </ul>
+                    <!-- CONTAINER DE IMAGEM AUMENTADO -->
+                    <!-- COMENTÁRIO: Imagem de referência (Não Somos) - Placeholder -->
+                    <img src="https://placehold.co/400x200/3C3C3B/FFFFFF?text=Evitar:+Aula+Técnica+Intimidadora" alt="Imagem de palestra técnica" class="w-full h-40 object-cover object-center rounded-md mt-4 shadow-inner bg-gray-700">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 8: A Arquitetura da Marca -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20">
+            <h2 class="font-title text-4xl text-primary mb-10">Diretrizes da Marca: Arquitetura</h2>
+            <div class="space-y-6">
+                <!-- Marca Mãe -->
+                <div class="bg-gray-100 p-6 rounded-lg shadow-md">
+                    <h3 class="font-title text-2xl text-primary">Marca Mãe: Vila Vinhos</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <p class="text-xl text-gray-700">Selo de confiança e curadoria. Foco em conteúdo (Blog, SEO) e na jornada do Rafael.</p>
+                </div>
+                <!-- Sub-marca / Selo -->
+                <div class="bg-clara-1 p-6 rounded-lg shadow-md border-l-4 border-clara-2">
+                    <h3 class="font-title text-2xl text-clara-2">Selo / Editorial: "Vila Social" (Sugestão)</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <p class="text-xl text-gray-700">Foco em Clara. Editorial de lifestyle (Instagram, Reels) para gerar desejo e inspirar momentos.</p>
+                </div>
+                <!-- Marca de Produto (Fundo Azul) -->
+                <div class="bg-rafael-1 text-white p-6 rounded-lg shadow-md border-l-4 border-rafael-3"> <!-- bg-rafael-1 agora é AZUL -->
+                    <h3 class="font-title text-2xl text-rafael-3">Marca de Produto: "Clube Vila" (Sugestão)</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <p class="text-xl text-gray-200">Foco em Rafael. O clube de assinatura focado em descoberta, curadoria e fidelização.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Slide 9: Diretrizes Visuais: Clara -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20">
+            <h2 class="font-title text-4xl text-primary mb-10">Diretriz Visual: Clara (Vila Social)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <h3 class="font-title text-2xl text-gray-800 mb-4">Paleta Clara: "Golden Hour"</h3>
+                    <p class="text-lg text-gray-600 mb-6">Quente, vibrante, solar. O Vinho (#8e151b) é o ponto de contraste.</p>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="color-swatch bg-clara-1"></div>
+                            <span class="text-sm font-bold text-gray-700 mt-2 block">#FADCD9</span>
+                        </div>
+                        <div>
+                            <div class="color-swatch bg-clara-2"></div>
+                            <span class="text-sm font-bold text-gray-700 mt-2 block">#F79D84</span>
+                        </div>
+                        <div>
+                            <div class="color-swatch bg-clara-3"></div>
+                            <span class="text-sm font-bold text-gray-700 mt-2 block">#F3B562</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-50 p-6 rounded-lg shadow-inner">
+                    <h3 class="font-title text-2xl text-gray-800 mb-4">Fotografia</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <p class="text-lg text-gray-700"><span class="font-bold">Foco:</span> Luz natural (pôr do sol), pessoas reais, movimento, textura.</p>
+                    <p class="text-lg text-gray-700 mt-2"><span class="font-bold">Mood:</span> Aspiracional, mas atingível. Autêntico.</p>
+                    
+                    <!-- CONTAINER DE IMAGEM AUMENTADO -->
+                    <!-- COMENTÁRIO: Imagem de referência de fotografia (Clara) -->
+                    <img src="561765348_18531836395037472_8950741118686020989_n.jpg" class="w-full h-48 object-cover object-center rounded-md mt-4 bg-gray-200" alt="Referência de foto lifestyle, golden hour">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 10: Diretrizes Visuais: Rafael (Fundo Azul) -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20 bg-rafael-1 text-white"> <!-- bg-rafael-1 agora é AZUL -->
+            <h2 class="font-title text-4xl text-primary mb-10">Diretriz Visual: Rafael (Vila Mãe / Clube)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                    <h3 class="font-title text-2xl text-gray-100 mb-4">Paleta Rafael: "Refúgio Urbano"</h3>
+                    <p class="text-lg text-gray-200 mb-6">Sóbria, texturizada, masculina. Foco em conforto e sofisticação.</p>
+                    <div class="grid grid-cols-3 gap-4 text-center">
+                        <div>
+                            <div class="color-swatch bg-rafael-1"></div>
+                            <span class="text-sm font-bold text-gray-300 mt-2 block">#0B3C49</span>
+                        </div>
+                        <div>
+                            <div class="color-swatch bg-rafael-2"></div>
+                            <span class="text-sm font-bold text-gray-300 mt-2 block">#3C3C3B</span>
+                        </div>
+                        <div>
+                            <div classD="color-swatch bg-rafael-3"></div>
+                            <span class="text-sm font-bold text-gray-300 mt-2 block">#A96F44</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-800 p-6 rounded-lg shadow-inner">
+                    <h3 class="font-title text-2xl text-gray-100 mb-4">Fotografia</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <p class="text-lg text-gray-200"><span class="font-bold">Foco:</span> Luz controlada (interna), texturas (madeira, pedra), foco no produto.</p>
+                    <p class="text-lg text-gray-200 mt-2"><span class="font-bold">Mood:</span> Noturno, ritualístico, de descoberta.</p>
+                    
+                    <!-- CONTAINER DE IMAGEM AUMENTADO -->
+                    <!-- COMENTÁRIO: Imagem de referência de fotografia (Rafael) - Imagem repetida intencionalmente para consistência da persona -->
+                    <img src="gettyimages-200436647-002-612x612.jpg" class="w-full h-48 object-cover object-center rounded-md mt-4 bg-gray-700" alt="Referência de foto de produto ou ritual, como homem cozinhando">
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 11: Pilares de Conteúdo (1/2) -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20">
+            <h2 class="font-title text-4xl text-primary mb-10">Em Ação: Pilares de Conteúdo (1/2)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <div class="bg-clara-1 p-8 rounded-lg shadow-lg">
+                    <h3 class="font-title text-3xl text-clara-2 mb-4">INSPIRAR (Topo de Funil)</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <p class="text-lg text-gray-700 mb-4"><span class="font-bold">Foco:</span> Clara.</p>
+                    <p class="text-lg text-gray-700 mb-4"><span class="font-bold">Objetivo:</span> Gerar desejo e associação com *lifestyle*.</p>
+                    <p class="text-lg text-gray-700"><span class="font-bold">Formato:</span> Reels/Shorts (estéticos, *golden hour*), Fotos de "Momentos".</p>
+                    <p class="text-lg text-gray-700 mt-4"><span class="font-bold">Exemplo:</span> "5 vinhos rosés para o seu piquenique."</p>
+                </div>
+
+                <div class="bg-rafael-1 text-white p-8 rounded-lg shadow-lg"> <!-- bg-rafael-1 agora é AZUL -->
+                    <h3 class="font-title text-3xl text-rafael-3 mb-4">EDUCAR (Meio de Funil)</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <p class="text-lg text-gray-200 mb-4"><span class="font-bold">Foco:</span> Rafael.</p>
+                    <p class="text-lg text-gray-200 mb-4"><span class="font-bold">Objetivo:</span> Construir autoridade e confiança (sem ser esnobe).</p>
+                    <p class="text-lg text-gray-200"><span class="font-bold">Formato:</span> Carrossel "Como Fazer", Blog (SEO), Guias.</p>
+                    <p class="text-lg text-gray-200 mt-4"><span class="font-bold">Exemplo:</span> "Guia Rápido: Como harmonizar Malbec com Churrasco."</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 12: Pilares de Conteúdo (2/2) -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20">
+            <h2 class="font-title text-4xl text-primary mb-10">Em Ação: Pilares de Conteúdo (2/2)</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                
+                <div class="bg-gray-100 p-8 rounded-lg shadow-lg">
+                    <h3 class="font-title text-3xl text-gray-800 mb-4">ENGAJAR (Meio de Funil)</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <p class="text-lg text-gray-700 mb-4"><span class="font-bold">Foco:</span> Ambos (Voz da Marca).</p>
+                    <p class="text-lg text-gray-700 mb-4"><span class="font-bold">Objetivo:</span> Criar comunidade e ouvir o cliente (UGC).</p>
+                    <p class="text-lg text-gray-700"><span class="font-bold">Formato:</span> Stories (Enquetes, Q&A), Repost de fotos de clientes.</p>
+                    <p class="text-lg text-gray-700 mt-4"><span class="font-bold">Exemplo:</span> Enquete no Story: "Noite de pizza pede..."</p>
+                </div>
+
+                <div class="bg-primary text-white p-8 rounded-lg shadow-lg">
+                    <h3 class="font-title text-3xl mb-4">CONVERTER (Fundo de Funil)</h3>
+                    <!-- CONTEÚDO HUMANIZADO -->
+                    <p class="text-lg text-gray-100 mb-4"><span class="font-bold">Foco:</span> Ambos (Soluções Claras).</p>
+                    <p class="text-lg text-gray-100 mb-4"><span class="font-bold">Objetivo:</span> Transformar seguidores em clientes.</p>
+                    <p class="text-lg text-gray-100"><span class="font-bold">Formato:</span> Carrossel de Kit/Pack, Stories com link direto.</p>
+                    <p class="text-lg text-gray-100 mt-4"><span class="font-bold">Exemplo:</span> "O Kit Piquenique Perfeito. Receba em casa. Link na bio."</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Slide 13: Conclusão / Próximos Passos -->
+        <div class="slide flex flex-col justify-center p-16 md:p-20">
+            <h2 class="font-title text-4xl text-primary mb-12">Próximos Passos</h2>
+            <ol class="list-none space-y-6 text-2xl text-gray-700 max-w-3xl mx-auto">
+                
+                <li class="flex items-center gap-6 p-6 bg-gray-50 rounded-lg shadow-lg border-l-4 border-primary">
+                    <span class="flex items-center justify-center text-3xl font-title text-white bg-primary rounded-full w-12 h-12 flex-shrink-0">1</span>
+                    <span class="flex-1">
+                        <!-- CONTEÚDO HUMANIZADO -->
+                        <h4 class="font-title text-gray-800">Validar Design</h4>
+                        <p class="text-xl text-gray-600">Rodar testes A/B com posts e rótulos para cada perfil.</p>
+                    </span>
+                </li>
+                
+                <li class="flex items-center gap-6 p-6 bg-gray-50 rounded-lg shadow-lg border-l-4 border-primary">
+                    <span class="flex items-center justify-center text-3xl font-title text-white bg-primary rounded-full w-12 h-12 flex-shrink-0">2</span>
+                    <span class="flex-1">
+                        <!-- CONTEÚDO HUMANIZADO -->
+                        <h4 class="font-title text-gray-800">Criar Calendário de Conteúdo</h4>
+                        <p class="text-xl text-gray-600">Definir pautas de blog (SEO) e roteiros de Reels (Inspiração).</p>
+                    </span>
+                </li>
+
+                <li class="flex items-center gap-6 p-6 bg-gray-50 rounded-lg shadow-lg border-l-4 border-primary">
+                    <span class="flex items-center justify-center text-3xl font-title text-white bg-primary rounded-full w-12 h-12 flex-shrink-0">3</span>
+                    <span class="flex-1">
+                        <!-- CONTEÚDO HUMANIZADO -->
+                        <h4 class="font-title text-gray-800">Definir KPIs</h4>
+                        <p class="text-xl text-gray-600">Medir Engajamento (Clara) vs. Conversão/LTV (Rafael).</p>
+                    </span>
+                </li>
+            </ol>
+        </div>
+        
+        <!-- Slide 14: Obrigado -->
+        <div class="slide flex flex-col justify-center items-center p-16 md:p-20 text-center">
+            <!-- COMENTÁRIO: Logo da Vila Vinhos. -->
+            <img src="https://cdn.awsli.com.br/400x300/2702/2702254/logo/logo-vila-vinhos_1080x1080-2-z3xzmv4rvq.png" alt="Logo Vila Vinhos" class="w-40 h-40 mb-8">
+            <h2 class="font-title text-5xl text-primary mb-6">Obrigado.</h2>
+        </div>
+
+        <!-- Controles de Navegação -->
+        <div id="navigation-controls" class="absolute bottom-6 left-6 right-6 z-30 flex justify-between items-center">
+            
+            <!-- Botão Anterior -->
+            <button id="prev-btn" class="nav-btn bg-white border-2 border-primary text-primary font-bold py-2 px-4 rounded-full shadow-lg opacity-0" disabled>
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            </button>
+            
+            <!-- Contador de Slides -->
+            <div id="slide-counter" class="text-sm text-gray-600 bg-white py-2 px-4 rounded-full shadow-lg">
+                Slide 1 / 14
+            </div>
+
+            <!-- Botão Próximo -->
+            <button id="next-btn" class="nav-btn bg-white border-2 border-primary text-primary font-bold py-2 px-4 rounded-full shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
+            </button>
+        </div>
+        
+    </div> <!-- Fim do #presentation-container -->
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            
+            // --- DETECÇÃO DE MODO RETRATO ---
+            // Verifica a proporção da tela. Se for retrato, adiciona a classe.
+            const aspectRatio = window.innerWidth / window.innerHeight;
+            if (aspectRatio < 1.1) { // 1.1 dá uma margem (telas quase quadradas)
+                document.documentElement.classList.add('mode-portrait');
+            }
+
+            // --- LÓGICA DE SLIDES ---
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prev-btn');
+            const nextBtn = document.getElementById('next-btn');
+            const slideCounter = document.getElementById('slide-counter');
+            let currentSlide = 0;
+            const totalSlides = slides.length;
+
+            function showSlide(n) {
+                // Remove 'active' de todos os slides
+                slides.forEach(slide => {
+                    slide.classList.remove('active');
+                });
+                
+                // Adiciona 'active' ao slide 'n'
+                slides[n].classList.add('active');
+                currentSlide = n;
+                
+                // Atualiza o contador
+                slideCounter.textContent = `Slide ${n + 1} / ${totalSlides}`;
+
+                // Controla a visibilidade dos botões
+                if (n === 0) {
+                    prevBtn.classList.add('opacity-0');
+                    prevBtn.disabled = true;
+                } else {
+                    prevBtn.classList.remove('opacity-0');
+                    prevBtn.disabled = false;
+                }
+
+                if (n === totalSlides - 1) {
+                    nextBtn.classList.add('opacity-0');
+                    nextBtn.disabled = true;
+                } else {
+                    nextBtn.classList.remove('opacity-0');
+                    nextBtn.disabled = false;
+                }
+            }
+
+            function nextSlide() {
+                if (currentSlide < totalSlides - 1) {
+                    showSlide(currentSlide + 1);
+                }
+            }
+
+            function prevSlide() {
+                if (currentSlide > 0) {
+                    showSlide(currentSlide - 1);
+                }
+            }
+
+            // Event Listeners
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+
+            // Navegação pelo teclado
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') {
+                    nextSlide();
+                } else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'Backspace') {
+                    prevSlide();
+                }
+            });
+
+            // Inicia a apresentação
+            showSlide(0);
+        });
+    </script>
+
+</body>
+</html>
+
